@@ -1,0 +1,8 @@
+node_modules
+promptpit.db
+.env
+.next
+dist
+build
+*.log
+.DS_Store

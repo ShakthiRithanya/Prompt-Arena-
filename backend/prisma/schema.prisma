@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model battles {
+  id                               String               @id
+  challenge_id                     Int?
+  status                           String?              @default("WAITING")
+  player_a_id                      String?
+  player_b_id                      String?
+  winner_id                        String?
+  created_at                       String?              @default("CURRENT_TIMESTAMP")
+  finished_at                      String?
+  users_battles_winner_idTousers   users?               @relation("battles_winner_idTousers", fields: [winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_battles_player_b_idTousers users?               @relation("battles_player_b_idTousers", fields: [player_b_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_battles_player_a_idTousers users?               @relation("battles_player_a_idTousers", fields: [player_a_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  challenges                       challenges?          @relation(fields: [challenge_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prompt_submissions               prompt_submissions[]
+  votes                            votes[]
+}
+
+model categories {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique(map: "sqlite_autoindex_categories_1")
+  name        String
+  description String?
+  challenges  challenges[]
+}
+
+model challenges {
+  id          Int         @id @default(autoincrement())
+  category_id Int?
+  title       String
+  description String
+  difficulty  String?
+  created_by  String?
+  created_at  String?     @default("CURRENT_TIMESTAMP")
+  battles     battles[]
+  users       users?      @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories  categories? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model llm_responses {
+  id                   String              @id
+  prompt_submission_id String?
+  model_name           String?
+  response_text        String
+  created_at           String?             @default("CURRENT_TIMESTAMP")
+  prompt_submissions   prompt_submissions? @relation(fields: [prompt_submission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model prompt_submissions {
+  id            String          @id
+  battle_id     String?
+  user_id       String?
+  prompt_text   String
+  created_at    String?         @default("CURRENT_TIMESTAMP")
+  llm_responses llm_responses[]
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  battles       battles?        @relation(fields: [battle_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                                 String               @id
+  username                           String               @unique(map: "sqlite_autoindex_users_2")
+  email                              String               @unique(map: "sqlite_autoindex_users_3")
+  password_hash                      String
+  avatar_url                         String?
+  rating                             Int?                 @default(1200)
+  wins                               Int?                 @default(0)
+  losses                             Int?                 @default(0)
+  ties                               Int?                 @default(0)
+  created_at                         String?              @default("CURRENT_TIMESTAMP")
+  battles_battles_winner_idTousers   battles[]            @relation("battles_winner_idTousers")
+  battles_battles_player_b_idTousers battles[]            @relation("battles_player_b_idTousers")
+  battles_battles_player_a_idTousers battles[]            @relation("battles_player_a_idTousers")
+  challenges                         challenges[]
+  prompt_submissions                 prompt_submissions[]
+  votes                              votes[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model votes {
+  id         String   @id
+  battle_id  String?
+  voter_id   String?
+  choice     String?
+  created_at String?  @default("CURRENT_TIMESTAMP")
+  users      users?   @relation(fields: [voter_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  battles    battles? @relation(fields: [battle_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
