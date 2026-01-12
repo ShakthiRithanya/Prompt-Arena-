@@ -6,7 +6,7 @@ Prompt Pit is a competitive platform where users battle using prompts. Unlike tr
 ## Tech Stack
 - **Frontend**: Next.js (TypeScript), Tailwind CSS
 - **Backend**: Node.js, Express
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (Migrated to SQLite for Dev/MVP)
 - **Realtime**: Socket.io
 
 ## Project Structure
@@ -18,7 +18,6 @@ Prompt Pit is a competitive platform where users battle using prompts. Unlike tr
 
 ### Prerequisites
 - Node.js (v18+)
-- PostgreSQL
 
 ### Backend
 1. `cd backend`
